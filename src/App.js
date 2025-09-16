@@ -93,17 +93,50 @@ function App() {
     setMostraCheckout(true);
   };
 
-  const handleCheckoutSubmit = (event) => {
+  const handleCheckoutSubmit = async (event) => {
     event.preventDefault();
-    // Salva os dados do pedido antes de limpar o carrinho
-    setUltimoPedido({
+
+    // Capturando os dados do formulário
+    const formData = new FormData(event.target);
+    const cliente = {
+      nome: formData.get("nome"),
+      endereco: formData.get("endereco"),
+      pagamento: formData.get("pagamento"),
+    };
+
+    const dadosDoPedido = {
+      cliente, // Adicionando o objeto cliente
       itens: carrinho,
       total: calcularTotal(),
-    });
+      // Você pode adicionar um timestamp para a hora do pedido
+      data: new Date().toISOString(),
+    };
 
-    setCarrinho([]);
-    setMostraCheckout(false);
-    setPedidoFinalizado(true); // Exibe a tela de confirmação
+    try {
+      const response = await fetch("http://localhost:3001/api/pedidos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dadosDoPedido),
+      });
+
+      if (response.ok) {
+        alert("Pedido enviado com sucesso para a lanchonete!");
+        setUltimoPedido({
+          itens: carrinho,
+          total: calcularTotal(),
+        });
+        setCarrinho([]);
+        setMostraCheckout(false);
+        setPedidoFinalizado(true);
+      } else {
+        alert("Erro ao enviar o pedido. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Erro na conexão:", error);
+      alert("Erro ao se conectar com o servidor.");
+    }
   };
 
   const handleNovoPedido = () => {
