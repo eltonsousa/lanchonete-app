@@ -10,6 +10,9 @@ import milkshakeImagem from "./assets/milkshake.png";
 
 function App() {
   const [carrinho, setCarrinho] = useState([]);
+  const [mostraCheckout, setMostraCheckout] = useState(false);
+  const [pedidoFinalizado, setPedidoFinalizado] = useState(false); // Novo estado
+  const [ultimoPedido, setUltimoPedido] = useState(null); // Novo estado
 
   const lanches = [
     {
@@ -86,6 +89,27 @@ function App() {
       .toFixed(2);
   };
 
+  const handleFinalizarPedido = () => {
+    setMostraCheckout(true);
+  };
+
+  const handleCheckoutSubmit = (event) => {
+    event.preventDefault();
+    // Salva os dados do pedido antes de limpar o carrinho
+    setUltimoPedido({
+      itens: carrinho,
+      total: calcularTotal(),
+    });
+
+    setCarrinho([]);
+    setMostraCheckout(false);
+    setPedidoFinalizado(true); // Exibe a tela de confirmação
+  };
+
+  const handleNovoPedido = () => {
+    setPedidoFinalizado(false); // Volta para a tela inicial
+  };
+
   return (
     <div className="App">
       <header>
@@ -93,51 +117,117 @@ function App() {
         <p>Sua fome acaba aqui. Conheça nossos clássicos!</p>
       </header>
 
-      <main className="cardapio">
-        {lanches.map((lanche) => (
-          <CardapioItem
-            key={lanche.id}
-            item={lanche}
-            onAdicionar={adicionarAoCarrinho}
-          />
-        ))}
-      </main>
-
-      {carrinho.length > 0 && (
-        <aside className="carrinho-container">
-          <h2>Seu Carrinho</h2>
-          <div className="carrinho-itens">
-            {carrinho.map((item) => (
-              <div key={item.id} className="carrinho-item">
-                <div className="item-info">
-                  <p>{item.nome}</p>
-                  <p>R$ {(item.preco * item.quantidade).toFixed(2)}</p>
-                </div>
-                <div className="carrinho-botoes">
-                  <div className="quantidade-botoes">
-                    <button onClick={() => diminuirQuantidade(item.id)}>
-                      -
-                    </button>
-                    <span>{item.quantidade}</span>
-                    <button onClick={() => aumentarQuantidade(item.id)}>
-                      +
-                    </button>
-                  </div>
-                  <button
-                    className="remover-item"
-                    onClick={() => removerDoCarrinho(item.id)}
-                  >
-                    Remover
-                  </button>
-                </div>
-              </div>
+      {/* Condição para mostrar o cardápio e o carrinho */}
+      {!mostraCheckout && !pedidoFinalizado && (
+        <>
+          <main className="cardapio">
+            {lanches.map((lanche) => (
+              <CardapioItem
+                key={lanche.id}
+                item={lanche}
+                onAdicionar={adicionarAoCarrinho}
+              />
             ))}
+          </main>
+
+          {carrinho.length > 0 && (
+            <aside className="carrinho-container">
+              <h2>Seu Carrinho</h2>
+              <div className="carrinho-itens">
+                {carrinho.map((item) => (
+                  <div key={item.id} className="carrinho-item">
+                    <div className="item-info">
+                      <p>{item.nome}</p>
+                      <p>R$ {(item.preco * item.quantidade).toFixed(2)}</p>
+                    </div>
+                    <div className="carrinho-botoes">
+                      <div className="quantidade-botoes">
+                        <button onClick={() => diminuirQuantidade(item.id)}>
+                          -
+                        </button>
+                        <span>{item.quantidade}</span>
+                        <button onClick={() => aumentarQuantidade(item.id)}>
+                          +
+                        </button>
+                      </div>
+                      <button
+                        className="remover-item"
+                        onClick={() => removerDoCarrinho(item.id)}
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="carrinho-total">
+                <h3>Total: R$ {calcularTotal()}</h3>
+                <button
+                  className="finalizar-pedido"
+                  onClick={handleFinalizarPedido}
+                >
+                  Finalizar Pedido
+                </button>
+              </div>
+            </aside>
+          )}
+        </>
+      )}
+
+      {/* Formulário de Checkout */}
+      {mostraCheckout && (
+        <div className="checkout-container">
+          <h2>Finalizar Pedido</h2>
+          <form onSubmit={handleCheckoutSubmit}>
+            <label>
+              Nome:
+              <input type="text" name="nome" required />
+            </label>
+            <label>
+              Endereço de Entrega:
+              <input type="text" name="endereco" required />
+            </label>
+            <label>
+              Forma de Pagamento:
+              <select name="pagamento" required>
+                <option value="">Selecione...</option>
+                <option value="pix">PIX</option>
+                <option value="cartao">Cartão de Crédito/Débito</option>
+                <option value="dinheiro">Dinheiro</option>
+              </select>
+            </label>
+            <button type="submit" className="finalizar-pedido">
+              Confirmar Pedido
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Tela de Confirmação */}
+      {pedidoFinalizado && ultimoPedido && (
+        <div className="confirmacao-container">
+          <h2>Pedido Confirmado!</h2>
+          <p>Obrigado por sua compra! Seu pedido será preparado em breve.</p>
+
+          <div className="resumo-pedido">
+            <h3>Resumo do Pedido:</h3>
+            <ul>
+              {ultimoPedido.itens.map((item) => (
+                <li key={item.id}>
+                  {item.nome} (x{item.quantidade}) - R${" "}
+                  {(item.preco * item.quantidade).toFixed(2)}
+                </li>
+              ))}
+            </ul>
+            <div className="total-resumo">
+              <strong>Total: R$ {ultimoPedido.total}</strong>
+            </div>
           </div>
-          <div className="carrinho-total">
-            <h3>Total: R$ {calcularTotal()}</h3>
-            <button className="finalizar-pedido">Finalizar Pedido</button>
-          </div>
-        </aside>
+
+          <button onClick={handleNovoPedido} className="novo-pedido-btn">
+            Fazer um novo pedido
+          </button>
+        </div>
       )}
     </div>
   );
