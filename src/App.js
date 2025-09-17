@@ -144,7 +144,7 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>Lanchonete do Zé</h1>
+        <h1>Manú Lanches</h1>
         <p>Sua fome acaba aqui. Conheça nossos clássicos!</p>
       </header>
 
