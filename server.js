@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const app = express();
 const port = 3001;
 const path = require("path");
+const fs = require("fs"); // Importe o módulo 'fs'
 
 app.use(cors());
 app.use(express.json());
@@ -11,9 +12,34 @@ app.use(express.json());
 // Adicione esta linha para servir arquivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
 
+// Crie a array 'cardapio' e carregue os dados do arquivo
+let cardapio = [];
+const cardapioFilePath = path.join(__dirname, "cardapio.json");
+
+// Carregar o cardápio do arquivo no início
+try {
+  const data = fs.readFileSync(cardapioFilePath, "utf8");
+  cardapio = JSON.parse(data);
+  console.log("Cardápio carregado do arquivo.");
+} catch (error) {
+  console.error(
+    "Arquivo de cardápio não encontrado ou corrompido. Iniciando com cardápio vazio."
+  );
+}
+
+// Função para salvar o cardápio no arquivo
+const salvarCardapio = () => {
+  fs.writeFile(cardapioFilePath, JSON.stringify(cardapio, null, 2), (err) => {
+    if (err) {
+      console.error("Erro ao salvar o cardápio:", err);
+    } else {
+      console.log("Cardápio salvo com sucesso!");
+    }
+  });
+};
+
 let pedidos = [];
 let usuarios = [];
-let cardapio = []; // NOVO: Array para armazenar os itens do cardápio
 
 // ROTA PARA REGISTRAR UM NOVO USUÁRIO
 app.post("/api/usuarios/registrar", async (req, res) => {
@@ -113,6 +139,7 @@ app.get("/api/cardapio", (req, res) => {
 app.post("/api/cardapio", (req, res) => {
   const novoItem = { ...req.body, id: Date.now() };
   cardapio.push(novoItem);
+  salvarCardapio(); // Salve as alterações
   console.log("Novo item adicionado ao cardápio:", novoItem);
   res.status(201).json(novoItem);
 });
@@ -122,6 +149,7 @@ app.put("/api/cardapio/:id", (req, res) => {
   const itemIndex = cardapio.findIndex((item) => item.id === parseInt(id));
   if (itemIndex !== -1) {
     cardapio[itemIndex] = { ...req.body, id: parseInt(id) };
+    salvarCardapio(); // Salve as alterações
     console.log("Item do cardápio atualizado:", cardapio[itemIndex]);
     res.status(200).json(cardapio[itemIndex]);
   } else {
@@ -134,6 +162,7 @@ app.delete("/api/cardapio/:id", (req, res) => {
   const itemIndex = cardapio.findIndex((item) => item.id === parseInt(id));
   if (itemIndex !== -1) {
     cardapio.splice(itemIndex, 1);
+    salvarCardapio(); // Salve as alterações
     console.log("Item do cardápio removido.");
     res.status(200).send({ message: "Item removido com sucesso." });
   } else {
