@@ -1,49 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CardapioItem from "./CardapioItem";
 import "./App.css";
-
-// Importe as imagens aqui
-import hamburguerImagem from "./assets/hamburguer.jpg";
-import hotdogImagem from "./assets/hotdog.webp";
-import batataImagem from "./assets/batata-frita.webp";
-import milkshakeImagem from "./assets/milkshake.png";
 
 function App() {
   const [carrinho, setCarrinho] = useState([]);
   const [mostraCheckout, setMostraCheckout] = useState(false);
-  const [pedidoFinalizado, setPedidoFinalizado] = useState(false); // Novo estado
-  const [ultimoPedido, setUltimoPedido] = useState(null); // Novo estado
+  const [pedidoFinalizado, setPedidoFinalizado] = useState(false);
+  const [ultimoPedido, setUltimoPedido] = useState(null);
+  const [itensCardapio, setItensCardapio] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const lanches = [
-    {
-      id: 1,
-      nome: "Hambúrguer Clássico",
-      descricao: "Pão de brioche, 150g de carne...",
-      preco: 29.9,
-      imagem: hamburguerImagem,
-    },
-    {
-      id: 2,
-      nome: "Hot Dog Especial",
-      descricao: "Salsicha artesanal, purê de batata...",
-      preco: 19.5,
-      imagem: hotdogImagem,
-    },
-    {
-      id: 3,
-      nome: "Porção de Batata Frita",
-      descricao: "Batatas crocantes com um toque de sal...",
-      preco: 15.0,
-      imagem: batataImagem,
-    },
-    {
-      id: 4,
-      nome: "Milk-shake de Chocolate",
-      descricao: "Milk-shake cremoso com sorvete...",
-      preco: 18.0,
-      imagem: milkshakeImagem,
-    },
-  ];
+  const fetchCardapio = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/api/cardapio");
+      if (!response.ok) {
+        throw new Error("Erro ao buscar o cardápio");
+      }
+      const data = await response.json();
+      setItensCardapio(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCardapio();
+  }, []);
 
   const adicionarAoCarrinho = (item) => {
     const itemExistente = carrinho.find((c) => c.id === item.id);
@@ -96,7 +81,6 @@ function App() {
   const handleCheckoutSubmit = async (event) => {
     event.preventDefault();
 
-    // Capturando os dados do formulário
     const formData = new FormData(event.target);
     const cliente = {
       nome: formData.get("nome"),
@@ -105,10 +89,9 @@ function App() {
     };
 
     const dadosDoPedido = {
-      cliente, // Adicionando o objeto cliente
+      cliente,
       itens: carrinho,
       total: calcularTotal(),
-      // Você pode adicionar um timestamp para a hora do pedido
       data: new Date().toISOString(),
     };
 
@@ -140,8 +123,16 @@ function App() {
   };
 
   const handleNovoPedido = () => {
-    setPedidoFinalizado(false); // Volta para a tela inicial
+    setPedidoFinalizado(false);
   };
+
+  if (loading) {
+    return <div className="loading">Carregando cardápio...</div>;
+  }
+
+  if (error) {
+    return <div className="error">Erro ao carregar o cardápio: {error}</div>;
+  }
 
   return (
     <div className="App">
@@ -150,14 +141,13 @@ function App() {
         <p>Sua fome acaba aqui. Conheça nossos clássicos!</p>
       </header>
 
-      {/* Condição para mostrar o cardápio e o carrinho */}
       {!mostraCheckout && !pedidoFinalizado && (
         <>
           <main className="cardapio">
-            {lanches.map((lanche) => (
+            {itensCardapio.map((item) => (
               <CardapioItem
-                key={lanche.id}
-                item={lanche}
+                key={item.id}
+                item={item}
                 onAdicionar={adicionarAoCarrinho}
               />
             ))}
@@ -207,7 +197,6 @@ function App() {
         </>
       )}
 
-      {/* Formulário de Checkout */}
       {mostraCheckout && (
         <div className="checkout-container">
           <h2>Finalizar Pedido</h2>
@@ -236,7 +225,6 @@ function App() {
         </div>
       )}
 
-      {/* Tela de Confirmação */}
       {pedidoFinalizado && ultimoPedido && (
         <div className="confirmacao-container">
           <h2>Pedido Confirmado!</h2>
