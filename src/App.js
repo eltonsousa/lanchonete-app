@@ -13,6 +13,7 @@ function App() {
 
   const fetchCardapio = async () => {
     try {
+      // Agora o fetch é feito a partir do servidor
       const response = await fetch("http://localhost:3001/api/cardapio");
       if (!response.ok) {
         throw new Error("Erro ao buscar o cardápio");
@@ -80,7 +81,6 @@ function App() {
 
   const handleCheckoutSubmit = async (event) => {
     event.preventDefault();
-
     const formData = new FormData(event.target);
     const cliente = {
       nome: formData.get("nome"),
@@ -236,7 +236,7 @@ function App() {
               {ultimoPedido.itens.map((item) => (
                 <li key={item.id}>
                   {item.nome} (x{item.quantidade}) - R${" "}
-                  {(parseFloat(item.preco) * item.quantidade).toFixed(2)}
+                  {(item.preco * item.quantidade).toFixed(2)}
                 </li>
               ))}
             </ul>
