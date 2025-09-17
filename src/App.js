@@ -236,7 +236,7 @@ function App() {
               {ultimoPedido.itens.map((item) => (
                 <li key={item.id}>
                   {item.nome} (x{item.quantidade}) - R${" "}
-                  {(item.preco * item.quantidade).toFixed(2)}
+                  {(parseFloat(item.preco) * item.quantidade).toFixed(2)}
                 </li>
               ))}
             </ul>
