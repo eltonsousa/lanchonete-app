@@ -28,8 +28,15 @@ function App() {
   };
 
   useEffect(() => {
+    // 1. Faz a busca imediatamente ao carregar
     fetchCardapio();
-  }, []);
+
+    // 2. CONFIGURAÇÃO DA ATUALIZAÇÃO AUTOMÁTICA (a cada 10 segundos)
+    const intervalId = setInterval(fetchCardapio, 10000);
+
+    // 3. FUNÇÃO DE LIMPEZA: Remove o intervalo quando a página for fechada
+    return () => clearInterval(intervalId);
+  }, []); // O array vazio garante que o useEffect rode apenas no montagem do componente
 
   const adicionarAoCarrinho = (item) => {
     const itemExistente = carrinho.find((c) => c.id === item.id);
