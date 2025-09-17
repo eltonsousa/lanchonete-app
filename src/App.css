@@ -19,22 +19,38 @@ header {
     justify-content: center;
     gap: 20px;
     padding: 20px;
+    /* 🟢 Altera o fluxo principal para coluna, mantendo os cards abaixo um do outro */
+    flex-direction: column; 
+    align-items: center; 
 }
 
 .cardapio-item {
     background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    padding: 1rem;
-    width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    /* 🟢 NOVOS ESTILOS PARA HORIZONTAL LIMPO */
+    display: flex; 
+    align-items: center; /* Alinha verticalmente os elementos (imagem, info, botão) */
+    padding: 15px; 
+    width: 95%; 
+    max-width: 700px; /* Limite máximo para o card */
+}
+
+.cardapio-item:hover {
+    transform: translateY(-2px); /* Efeito sutil ao passar o mouse */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .cardapio-item img {
-    width: 100%;
-    height: auto;
-    border-radius: 5px;
-    margin-bottom: 1rem;
+    /* 🟢 NOVOS ESTILOS */
+    width: 120px; 
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px; /* Espaço entre a imagem e o texto */
+    flex-shrink: 0; /* Impede a imagem de encolher */
+    margin-bottom: 0; /* Remove a margem inferior original */
 }
 
 .cardapio-item h2 {
@@ -48,6 +64,29 @@ header {
     color: #666;
     height: 60px;
 }
+
+/* Ajustes no texto para remover espaçamentos desnecessários */
+.cardapio-item h2, .cardapio-item p {
+    margin: 0; 
+    font-size: 1.2rem;
+}
+
+/* Ajuste no preço */
+.cardapio-item .preco {
+    display: block; /* Garante que o preço fique em uma linha separada */
+    font-weight: bold;
+    color: #ff6347;
+    margin-top: 5px;
+}
+
+/* Ajuste fino no botão */
+.cardapio-item button.add-carrinho {
+    margin-left: auto; /* Empurra o botão para o canto direito */
+    flex-shrink: 0;
+    padding: 10px 15px;
+}
+
+
 
 .preco {
     font-size: 1.4rem;
@@ -105,9 +144,11 @@ header {
     padding: 10px 0;
 }
 
+/* 🟢 NOVO: Classe que agrupa e organiza o Nome/Desc/Preço */
 .item-info {
-  display: flex;
-  flex-direction: column;
+    flex-grow: 1; /* Faz o bloco de texto ocupar todo o espaço restante */
+    text-align: left; /* Garante que o texto comece à esquerda */
+    margin-right: 10px; /* Espaço antes do botão */
 }
 
 .item-info p {

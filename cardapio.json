@@ -2,7 +2,7 @@
   {
     "id": 1758086927178,
     "nome": "Hamburguer Artesanal",
-    "descricao": "Um hambúrguer suculento feito com 180 g de carne bovina selecionada, pão brioche macio, queijo derretido, alface, tomate fresco e molho especial da casa.",
+    "descricao": "Um hambúrguer suculento feito com 180 g de carne bovina selecionada, pão brioche macio, e queijo.",
     "preco": 35.99,
     "imagem": "assets/hamburguer.jpg"
   },
@@ -16,14 +16,14 @@
   {
     "id": 1758087046739,
     "nome": "Hotdog",
-    "descricao": "Pão macio com salsicha tipo Frankfurt, purê de batata, milho, ervilha, batata palha, ketchup, mostarda e maionese.",
+    "descricao": "Pão macio com salsicha tipo Frankfurt, purê de batata, milho, ervilha, batata palha, ketchup...",
     "preco": 12.99,
     "imagem": "assets/hotdog.webp"
   },
   {
     "id": 1758087118330,
     "nome": "Milk Shake",
-    "descricao": "Bebida cremosa e gelada, feita com sorvete, leite integral e calda sabor chocolate, morango ou baunilha, finalizada com chantilly.",
+    "descricao": "Bebida cremosa e gelada, feita com sorvete, leite integral e calda sabor chocolate, morango...",
     "preco": 22.69,
     "imagem": "assets/milkshake.png"
   }
