@@ -12,6 +12,10 @@ app.use(express.json());
 // Adicione esta linha para servir arquivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
 
+// ---------------------------------------------
+// PERSISTÊNCIA DE CARDÁPIO
+// ---------------------------------------------
+
 // Crie a array 'cardapio' e carregue os dados do arquivo
 let cardapio = [];
 const cardapioFilePath = path.join(__dirname, "cardapio.json");
@@ -38,8 +42,44 @@ const salvarCardapio = () => {
   });
 };
 
-let pedidos = [];
+// ---------------------------------------------
+// PERSISTÊNCIA DE USUÁRIOS (NOVO BLOCO)
+// ---------------------------------------------
+
 let usuarios = [];
+const usuariosFilePath = path.join(__dirname, "usuarios.json");
+
+// Carregar Usuários do arquivo no início
+try {
+  const data = fs.readFileSync(usuariosFilePath, "utf8");
+  usuarios = JSON.parse(data);
+  console.log("Usuários carregados do arquivo.");
+} catch (error) {
+  console.log(
+    "Arquivo de usuários não encontrado. Iniciando com lista de usuários vazia."
+  );
+}
+
+// Função para salvar os usuários no arquivo
+const salvarUsuarios = () => {
+  fs.writeFile(usuariosFilePath, JSON.stringify(usuarios, null, 2), (err) => {
+    if (err) {
+      console.error("Erro ao salvar os usuários:", err);
+    } else {
+      console.log("Usuários salvos no arquivo.");
+    }
+  });
+};
+
+// ---------------------------------------------
+// DADOS EM MEMÓRIA (NÃO PERSISTENTES)
+// ---------------------------------------------
+
+let pedidos = []; // Os pedidos continuam em memória, pois são dados temporários
+
+// ---------------------------------------------
+// ROTAS DE AUTENTICAÇÃO
+// ---------------------------------------------
 
 // ROTA PARA REGISTRAR UM NOVO USUÁRIO
 app.post("/api/usuarios/registrar", async (req, res) => {
@@ -56,6 +96,10 @@ app.post("/api/usuarios/registrar", async (req, res) => {
     const senhaHash = await bcrypt.hash(senha, saltRounds);
     const novoUsuario = { nome, senhaHash };
     usuarios.push(novoUsuario);
+
+    // CHAMA A FUNÇÃO DE SALVAMENTO DE USUÁRIOS
+    salvarUsuarios();
+
     console.log("Novo usuário registrado:", novoUsuario);
     res.status(201).send({ message: "Usuário registrado com sucesso!" });
   } catch (error) {
@@ -86,7 +130,10 @@ app.post("/api/usuarios/login", async (req, res) => {
   }
 });
 
-// ROTAS DE PEDIDO EXISTENTES
+// ---------------------------------------------
+// ROTAS DE PEDIDO
+// ---------------------------------------------
+
 app.post("/api/pedidos", (req, res) => {
   const novoPedido = req.body;
   novoPedido.status = "Em preparação";
@@ -130,6 +177,10 @@ app.delete("/api/pedidos/:id", (req, res) => {
     res.status(404).send({ message: "Pedido não encontrado." });
   }
 });
+
+// ---------------------------------------------
+// ROTAS DE CARDÁPIO
+// ---------------------------------------------
 
 // NOVAS ROTAS PARA GERENCIAR O CARDÁPIO (CRUD)
 app.get("/api/cardapio", (req, res) => {
